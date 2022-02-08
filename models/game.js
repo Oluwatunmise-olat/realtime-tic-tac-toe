@@ -1,7 +1,15 @@
 const mongoose = require("mongoose");
+const { v4: uuid4 } = require("uuid");
 
 const gameSchema = new mongoose.Schema(
   {
+    roomID: {
+      required: true,
+      type: String,
+      default: () => {
+        return uuid4();
+      }
+    },
     players: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -13,6 +21,7 @@ const gameSchema = new mongoose.Schema(
       ref: "Player"
     },
     board: {
+      type: mongoose.Schema.Types.Array,
       default: [
         [-1, -1, -1],
         [-1, -1, -1],
@@ -27,6 +36,8 @@ const maxPlayerValidator = (val) => {
   console.log(val, "from gameschema");
   return val.length <= 2;
 };
+
+gameSchema.index({ roomID: -1 });
 
 gameSchema
   .path("players")

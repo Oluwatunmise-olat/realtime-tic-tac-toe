@@ -33,6 +33,7 @@ app.use(
 app.use(router);
 app.use((error, req, res, next) => {
   console.log("an error occurred");
+  console.log(error.message);
 });
 
 db(() => {
