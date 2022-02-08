@@ -3,3 +3,4 @@ public
 views
 package*.json
 nodemon.json
+.env
