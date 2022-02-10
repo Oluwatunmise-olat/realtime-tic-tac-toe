@@ -34,7 +34,10 @@ const gameSchema = new mongoose.Schema(
 
 const maxPlayerValidator = (val) => {
   console.log(val, "from gameschema");
-  return val.length <= 2;
+  if (val.length > 2){
+    throw new Error("Room Occupied")
+  }
+  return true;
 };
 
 gameSchema.index({ roomID: -1 });

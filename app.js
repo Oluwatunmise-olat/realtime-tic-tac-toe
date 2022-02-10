@@ -36,8 +36,10 @@ app.use((error, req, res, next) => {
   console.log(error.message);
 });
 
-db(() => {
-  server.listen(process.env.PORT || 8080, () =>
-    console.log("server listening for requests ...")
-  );
-});
+(async () => {
+  await db(() => {
+    server.listen(process.env.PORT || 8080, () =>
+      console.log("server listening for requests ...")
+    );
+  });
+})();

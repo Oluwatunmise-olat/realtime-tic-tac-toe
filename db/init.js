@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 module.exports = async (cb) => {
   try {
-    mongoose.connect(process.env.URI);
+    await mongoose.connect(process.env.URI);
     console.log("db connection established 🙃");
     cb();
   } catch (error) {
