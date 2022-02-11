@@ -6,6 +6,7 @@ const MongoStore = require("connect-mongodb-session")(session);
 
 const db = require("./db/init");
 const router = require("./routes/index.routes");
+const ws = require("./sockets/game");
 
 const app = express();
 const server = require("http").createServer(app);
@@ -35,6 +36,8 @@ app.use((error, req, res, next) => {
   console.log("an error occurred");
   console.log(error.message);
 });
+
+ws(server);
 
 (async () => {
   await db(() => {

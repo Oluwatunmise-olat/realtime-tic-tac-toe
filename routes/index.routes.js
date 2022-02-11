@@ -34,9 +34,13 @@ router.get("/room/:roomID", isAllowed, async (req, res, next) => {
   }
 
   if (game.players.length == 2) {
-    req.session.userTurn =
+    game.user_turn_id =
       game.players[Math.floor(Math.random() * game.players.length)].playerID;
+  }else {
+    game.user_turn_id = "Await player 2"
   }
+
+  await game.save()
 
   let players = game.players.map((player) => {
     return { username: player.username, playerID: player.playerID };
@@ -48,9 +52,9 @@ router.get("/room/:roomID", isAllowed, async (req, res, next) => {
     error: "",
     data: {
       users: players,
-      userTurnID: { playerID: req.session.userTurn },
       userCharacter: req.session.userSign,
-      start: false
+      start: canStart,
+      roomID:game.roomID
     }
   });
 });
@@ -92,14 +96,15 @@ router.post(
       next(error);
     }
 
-    const players = game.players;
-
+    
     if (!game) {
       return res
-        .status(400)
-        .json({ error: { message: "Game Room Not Found" } });
+      .status(400)
+      .json({ error: { message: "Game Room Not Found" } });
     }
-
+    
+    const players = game.players;
+    
     if (players.length == 2) {
       // store user_id in request session and user_turn;
       return res.status(400).json({ error: { message: "Room Occupied" } });

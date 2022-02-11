@@ -17,7 +17,7 @@ const gameSchema = new mongoose.Schema(
       }
     ],
     user_turn_id: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "Player"
     },
     board: {
