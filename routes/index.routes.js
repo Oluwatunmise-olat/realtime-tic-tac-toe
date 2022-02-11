@@ -36,11 +36,11 @@ router.get("/room/:roomID", isAllowed, async (req, res, next) => {
   if (game.players.length == 2) {
     game.user_turn_id =
       game.players[Math.floor(Math.random() * game.players.length)].playerID;
-  }else {
-    game.user_turn_id = "Await player 2"
+  } else {
+    game.user_turn_id = "Await player 2";
   }
 
-  await game.save()
+  await game.save();
 
   let players = game.players.map((player) => {
     return { username: player.username, playerID: player.playerID };
@@ -54,7 +54,7 @@ router.get("/room/:roomID", isAllowed, async (req, res, next) => {
       users: players,
       userCharacter: req.session.userSign,
       start: canStart,
-      roomID:game.roomID
+      roomID: game.roomID
     }
   });
 });
@@ -88,6 +88,8 @@ router.post(
     let game;
     let player;
     const states = ["X", "O"];
+    // set players character sign
+    let sign;
 
     try {
       game = await Game.findOne({ roomID: room_id }).populate("players");
@@ -96,24 +98,20 @@ router.post(
       next(error);
     }
 
-    
     if (!game) {
       return res
-      .status(400)
-      .json({ error: { message: "Game Room Not Found" } });
+        .status(400)
+        .json({ error: { message: "Game Room Not Found" } });
     }
-    
+
     const players = game.players;
-    
+
     if (players.length == 2) {
       // store user_id in request session and user_turn;
       return res.status(400).json({ error: { message: "Room Occupied" } });
     }
 
-    // set players character sign
-    let sign;
-
-    if (players) {
+    if (players.length > 0) {
       players.forEach((player) => {
         sign = player.sign == states[0] ? states[1] : states[0];
       });
@@ -121,12 +119,15 @@ router.post(
       sign = states[Math.floor(Math.random() * states.length)];
     }
 
+    console.log(sign, "mee");
+
     try {
       player = await Player.create({
         username,
         gameID: game._id.toString(),
         sign
       });
+      req.session.userID = player._id;
     } catch (error) {
       error.status = 500;
       next(error);
@@ -135,7 +136,25 @@ router.post(
     game.players.push(player);
     await game.save();
 
-    req.session.userID = player._id;
+    // let isNew = true;
+
+    // game.players.forEach((_player) => {
+    //   if (_player._id.toString() == player._id.toString()) {
+    //     isNew = false;
+    //   }
+    // });
+
+    // if (isNew) {
+    //   player.gameID = game._id.toString();
+    //   game.players.push(player);
+    //   await player.save();
+    //   await game.save();
+    // } else {
+    //   return res
+    //     .status(400)
+    //     .json({ error: { message: "User Already in Room" }, data: {} });
+    // }
+
     req.session.userSign = sign;
 
     return res.status(200).json({ error: "", data: { room_id: game.roomID } });
