@@ -7,7 +7,7 @@ const { canPlay, playerMove, winOrDraw } = require("../sockets/game-status");
 // TODO:: Add socket auth middleware
 
 const ws = (httpServer) => {
-  _io = io(httpServer, { cors: { origin: ["*"] } });
+  _io = io(httpServer, { cors: { origin: "*" } });
   consumer(_io);
 
   return _io;

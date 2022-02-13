@@ -2,6 +2,7 @@ if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
 
+const cors = require("cors");
 const express = require("express");
 const path = require("path");
 const session = require("express-session");
@@ -13,7 +14,7 @@ const router = require("./routes/index.routes");
 const ws = require("./sockets/game");
 
 const app = express();
-const server = require("http").createServer(app);
+const server = require("https").createServer(app);
 const store = new MongoStore({
   uri: process.env.URI,
   collection: "session"
@@ -31,6 +32,7 @@ store.on("error", (err) => {
 
 app.set("view engine", "ejs");
 
+app.use(cors())
 app.use(express.static(path.join(__dirname, "public")));
 app.use([express.json(), express.urlencoded({ extended: false })]);
 app.use(sess);
