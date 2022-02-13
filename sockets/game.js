@@ -2,6 +2,7 @@ const io = require("socket.io");
 
 const Game = require("../models/game");
 const Player = require("../models/player");
+const { canPlay, playerMove, winOrDraw } = require("../sockets/game-status");
 
 // TODO:: Add socket auth middleware
 
@@ -14,9 +15,9 @@ const ws = (httpServer) => {
 
 const consumer = (_io) => {
   _io.on("connection", (socket) => {
-    socket.on("players", async ({ roomID }) => {
-      // console.log(socket.handshake.session);
+    let session = socket.handshake.session;
 
+    socket.on("players", async ({ roomID }) => {
       // this would could cause bug
       const game = await Game.findOne({ roomID }).populate("players");
 
@@ -29,14 +30,75 @@ const consumer = (_io) => {
       });
 
       let data = { players, playerTurn: game.user_turn_id };
-
       _io.sockets.in(roomID).emit("players-data", data);
     });
 
     socket.on("join-room", (room) => {
       socket.join(room);
     });
+
+    socket.on("move", async ({ index, roomID }) => {
+      // check the incoming user and verify against game turn id
+
+      let game;
+      let player;
+      let sign;
+
+      try {
+        game = await Game.findOne({ roomID }).populate("players", "playerID");
+        player = await Player.findOne({ _id: session.userID });
+      } catch (error) {
+        // handle error
+      }
+      if (game && player && game.user_turn_id === player.playerID) {
+        // define a win and a loss and always check against this before making a move
+        let players = game.players;
+        let _canPlay = canPlay(roomID);
+
+        if (!_canPlay) {
+          // handle draw case
+        }
+
+        sign = player.sign;
+
+        let [idx1, idx2] = playerMove(index, game, sign);
+
+        game.board[idx1][idx2] = sign;
+        game.markModified("board");
+        await game.save();
+
+        // change user_turn_id
+        players.forEach(async (_player) => {
+          if (_player.playerID != player.playerID) {
+            game.user_turn_id = _player.playerID;
+            await game.save();
+          }
+        });
+
+        let winOrDrawResp = await winOrDraw(roomID);
+
+        if (winOrDrawResp.status.win) {
+          // handle win case
+          _io.sockets.in(roomID).emit("move", { index, sign });
+          _io.sockets.in(roomID).emit("end", winOrDrawResp);
+          console.log(winOrDrawResp, "win state");
+        } else {
+          // emit user turn event
+          _io.sockets
+            .in(roomID)
+            .emit("playerTurn", { playerTurn: game.user_turn_id });
+          _io.sockets.in(roomID).emit("move", { index, sign });
+        }
+      } else {
+        console.log("invalid", socket.handshake.session);
+        console.log(player.playerID, game.user_turn_id);
+      }
+    });
   });
 };
 
 module.exports = ws;
+
+/**
+ * signal for board state persistence
+ */

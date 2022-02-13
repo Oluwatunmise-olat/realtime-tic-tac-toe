@@ -4,6 +4,7 @@ const { body, validationResult } = require("express-validator");
 const Game = require("../models/game");
 const Player = require("../models/player");
 const { isAllowed } = require("../middlewares/is-auth");
+const { states } = require("../sockets/states");
 
 router.get("/ping", (req, res) => {
   res.status(201).json({ success: true, msg: "pong" });
@@ -87,7 +88,6 @@ router.post(
 
     let game;
     let player;
-    const states = ["X", "O"];
     // set players character sign
     let sign;
 
@@ -118,8 +118,6 @@ router.post(
     } else {
       sign = states[Math.floor(Math.random() * states.length)];
     }
-
-    console.log(sign, "mee");
 
     try {
       player = await Player.create({
