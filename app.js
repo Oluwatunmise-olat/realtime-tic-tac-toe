@@ -35,8 +35,14 @@ app.use(router);
 
 // Error Handler
 app.use((error, req, res, next) => {
-  console.log("an error occurred");
-  console.log(error.message);
+  if (error.status == 404) {
+    res.redirect("/404");
+  }
+
+  if (error.status == 500) {
+    console.log("Technical Error");
+  }
+  return next();
 });
 
 ws(server).use(sharedsession(sess));

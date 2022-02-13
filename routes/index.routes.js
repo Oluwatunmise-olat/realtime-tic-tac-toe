@@ -134,25 +134,6 @@ router.post(
     game.players.push(player);
     await game.save();
 
-    // let isNew = true;
-
-    // game.players.forEach((_player) => {
-    //   if (_player._id.toString() == player._id.toString()) {
-    //     isNew = false;
-    //   }
-    // });
-
-    // if (isNew) {
-    //   player.gameID = game._id.toString();
-    //   game.players.push(player);
-    //   await player.save();
-    //   await game.save();
-    // } else {
-    //   return res
-    //     .status(400)
-    //     .json({ error: { message: "User Already in Room" }, data: {} });
-    // }
-
     req.session.userSign = sign;
 
     return res.status(200).json({ error: "", data: { room_id: game.roomID } });

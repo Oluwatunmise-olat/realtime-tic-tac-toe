@@ -59,10 +59,6 @@ exports.winOrDraw = async (roomID) => {
     idx8 = board[2][1],
     idx9 = board[2][2];
 
-  console.log(idx1, idx2, idx3, idx4, idx5, idx6, idx7, idx8, idx9);
-
-  console.log(idx1 == idx2 && idx1 == idx3, idx2 == idx3);
-
   // if true and not equals to -1
 
   if (

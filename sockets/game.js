@@ -48,22 +48,37 @@ const consumer = (_io) => {
         game = await Game.findOne({ roomID }).populate("players", "playerID");
         player = await Player.findOne({ _id: session.userID });
       } catch (error) {
-        // handle error
+        error.status = 500;
+        throw error;
       }
+
+      if (!game) {
+        // handles client side error
+        _io.sockets
+          .in(roomID)
+          .emit("error", { msg: "Invalid room ID", status: 404 });
+        return;
+      }
+
       if (game && player && game.user_turn_id === player.playerID) {
-        // define a win and a loss and always check against this before making a move
         let players = game.players;
         let _canPlay = canPlay(roomID);
 
         if (!_canPlay) {
           // handle draw case
+          _io.sockets
+            .in(roomID)
+            .emit("error", { msg: "Game Ended as a Draw", status: 200 });
+          return;
         }
 
         sign = player.sign;
 
         let [idx1, idx2] = playerMove(index, game, sign);
 
-        game.board[idx1][idx2] = sign;
+        // preventing change of move
+        game.board[idx1][idx2] =
+          game.board[idx1][idx2] != -1 ? game.board[idx1][idx2] : sign;
         game.markModified("board");
         await game.save();
 
@@ -90,8 +105,8 @@ const consumer = (_io) => {
           _io.sockets.in(roomID).emit("move", { index, sign });
         }
       } else {
-        console.log("invalid", socket.handshake.session);
-        console.log(player.playerID, game.user_turn_id);
+        // emit not turn error
+        // _io.sockets.in(roomID).emit("error", {msg:"Not Your Turn"})
       }
     });
   });
