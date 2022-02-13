@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <title>GAME</title>
+    <script
+      src="https://cdn.socket.io/4.4.1/socket.io.min.js"
+      integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H"
+      crossorigin="anonymous"
+    ></script>
+
+    <link rel="stylesheet" href="/css/game.css" />
+  </head>
+  <body>
+    <!-- ALERTS -->
+    <div id="alert"></div>
+
+    <!-- add error alert -->
+    <div class="meta">
+      <div class="players" id="players">
+        <p>Players</p>
+      </div>
+    </div>
+
+    <div id="player-turn" class="player-turn disabled">
+      <p>Player Turn ID</p>
+      <p id="turn"></p>
+    </div>
+
+    <input type="hidden" id="_room-id" />
+
+    <div class="game-board disabled" id="game-board">
+      <div class="box" data-id="1"></div>
+      <div class="box" data-id="2"></div>
+      <div class="box" data-id="3"></div>
+      <div class="box" data-id="4"></div>
+      <div class="box" data-id="5"></div>
+      <div class="box" data-id="6"></div>
+      <div class="box" data-id="7"></div>
+      <div class="box" data-id="8"></div>
+      <div class="box" data-id="9"></div>
+    </div>
+
+    <script src="/js/socket.js"></script>
+    <script type="text/javascript" src="/js/game.js"></script>
+  </body>
+</html>
