@@ -62,7 +62,7 @@ const consumer = (_io) => {
 
       if (game && player && game.user_turn_id === player.playerID) {
         let players = game.players;
-        let _canPlay = canPlay(roomID);
+        let _canPlay = await canPlay(roomID);
 
         if (!_canPlay) {
           // handle draw case
@@ -96,9 +96,36 @@ const consumer = (_io) => {
           // handle win case
           _io.sockets.in(roomID).emit("move", { index, sign });
           _io.sockets.in(roomID).emit("end", winOrDrawResp);
-          console.log(winOrDrawResp, "win state");
+
+          game.board = [
+            [-1, -1, -1],
+            [-1, -1, -1],
+            [-1, -1, -1]
+          ];
+
+          game.markModified("board");
+          await game.save();
         } else {
           // emit user turn event
+          let _canPlay = await canPlay(roomID);
+          if (!_canPlay) {
+            // handle draw case
+            _io.sockets.in(roomID).emit("move", { index, sign });
+
+            _io.sockets
+              .in(roomID)
+              .emit("error", { msg: "Game Ended as a Draw", status: 200 });
+            game.board = [
+              [-1, -1, -1],
+              [-1, -1, -1],
+              [-1, -1, -1]
+            ];
+
+            game.markModified("board");
+            await game.save();
+
+            return;
+          }
           _io.sockets
             .in(roomID)
             .emit("playerTurn", { playerTurn: game.user_turn_id });
