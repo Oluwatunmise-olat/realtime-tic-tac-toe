@@ -14,7 +14,7 @@ const router = require("./routes/index.routes");
 const ws = require("./sockets/game");
 
 const app = express();
-const server = require("https").createServer(app);
+const server = require("http").createServer(app);
 const store = new MongoStore({
   uri: process.env.URI,
   collection: "session"
