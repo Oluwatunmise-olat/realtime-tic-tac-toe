@@ -1,5 +1,4 @@
-const ws = io("https://git.heroku.com/tic-tac-realtime.git");
-
+const ws = io();
 
 const path = window.location.pathname.split("/");
 const roomID = path[path.length - 1];
@@ -27,7 +26,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
   ws.emit("join-room", roomID);
   ws.emit("players", { roomID });
-
 });
 
 const displayPlayerTurn = (playerTurn) => {
