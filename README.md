@@ -1,4 +1,4 @@
-LIVE APP LINK
+[LIVE APP LINK](https://tic-tac-realtime.herokuapp.com/)
 
 RUN STEPS
 1. npm install
